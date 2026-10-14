@@ -1,0 +1,43 @@
+services:
+
+  db:
+    image: mariadb:11.4
+    container_name: glpi-db
+    environment:
+      MARIADB_DATABASE: ${MARIADB_DATABASE}
+      MARIADB_USER: ${MARIADB_USER}
+      MARIADB_PASSWORD: ${MARIADB_PASSWORD}
+      MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD}
+    volumes:
+      - db_data:/var/lib/mysql
+
+  glpi:
+    image: glpi/glpi:11.0.9
+    container_name: glpi
+    depends_on:
+      - db
+    environment:
+      GLPI_DB_HOST: db
+      GLPI_DB_PORT: 3306
+      GLPI_DB_NAME: ${MARIADB_DATABASE}
+      GLPI_DB_USER: ${MARIADB_USER}
+      GLPI_DB_PASSWORD: ${MARIADB_PASSWORD}
+    ports:
+      - "8080:80"
+    volumes:
+      - glpi_data:/var/glpi
+
+  phpmyadmin:
+    image: phpmyadmin:5.2.2
+    container_name: glpi-phpmyadmin
+    depends_on:
+      - db
+    environment:
+      PMA_HOST: db
+      PMA_PORT: 3306
+    ports:
+      - "8081:80"
+
+volumes:
+  db_data:
+  glpi_data:
